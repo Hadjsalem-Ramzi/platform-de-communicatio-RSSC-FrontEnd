@@ -31,6 +31,7 @@
         <tr>
           <th>ID</th>
           <th>Task Name</th>
+          <th>Contenue</th>
           <th>Actions</th>
         </tr>
         </thead>
@@ -38,6 +39,7 @@
         <tr *ngFor="let t of displayedTasks">
           <td>{{ t.id }}</td>
           <td>{{ t.name }}</td>
+          <td>{{t.contenu}}</td>
           <td>
             <button (click)="handleDeleteTache(t)" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
             <button (click)="editTask(t)" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit</button>
@@ -55,13 +57,22 @@
       <form [formGroup]="taskFormGroup" (ngSubmit)="handleTaskAction()">
         <div class="mb-3">
           <label class="form-label">Name</label>
-          <input type="text" formControlName="name" class="form-control">
+          <input type="text" formControlName="name"  pattern="" class="form-control">
           <small *ngIf="taskFormGroup.controls['name'].errors && taskFormGroup.controls['name'].touched" class="text-danger">
             {{ getErrorMessage('name', taskFormGroup.controls['name'].errors) }}
           </small>
         </div>
+        <div class="mb-3">
+          <label class="form-label">Contenu</label>
+          <input type="text" formControlName="contenu" class="form-control">
+          <small *ngIf="taskFormGroup.controls['contenu'].errors && taskFormGroup.controls['contenu'].touched" class="text-danger">
+            {{ getErrorMessage('contenu', taskFormGroup.controls['contenu'].errors) }}
+          </small>
+        </div>
+
         <button [disabled]="taskFormGroup.invalid" class="btn btn-info" type="submit">{{ editingTask ? 'Update' : 'Save' }}</button>
         <button *ngIf="editingTask" class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
+        <button *ngIf="!editingTask" class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
       </form>
     </div>
   </div>

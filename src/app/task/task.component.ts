@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TaskService } from '../services/task.service';
 import { Task } from '../model/Tache.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+
 import { PageEvent } from "@angular/material/paginator";
 
 @Component({
@@ -23,7 +23,6 @@ export class TaskComponent implements OnInit {
   constructor(
     public taskService: TaskService,
     private fb: FormBuilder,
-    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -47,7 +46,8 @@ export class TaskComponent implements OnInit {
 
   initTaskForm() {
     this.taskFormGroup = this.fb.group({
-      name: this.fb.control(null, [Validators.required, Validators.minLength(4)])
+      name: this.fb.control(null, [Validators.required, Validators.minLength(4)]),
+      contenu: this.fb.control(null, [Validators.required, Validators.minLength(4)]),
     });
   }
 
@@ -95,12 +95,12 @@ export class TaskComponent implements OnInit {
   addTask() {
     if (this.taskFormGroup.valid) {
       const newTask: Task = {
-        name: this.taskFormGroup.value.name
+        name: this.taskFormGroup.value.name,
+        contenu:this.taskFormGroup.value.contenu,
       };
 
       this.taskService.createTask(newTask).subscribe({
         next: () => {
-          console.log('Tâche ajoutée avec succès');
           this.handleGetAllTasks();
           this.taskFormGroup.reset();
           this.showForm = false;
@@ -116,12 +116,12 @@ export class TaskComponent implements OnInit {
     if (this.taskFormGroup.valid && this.editingTask) {
       const updatedTask: Task = {
         id: this.editingTask.id,
-        name: this.taskFormGroup.value.name
+        name: this.taskFormGroup.value.name,
+        contenu:this.taskFormGroup.value.contenu
       };
 
       this.taskService.updateTask(updatedTask).subscribe({
         next: () => {
-          console.log('Tâche mise à jour avec succès');
           this.handleGetAllTasks();
           this.taskFormGroup.reset();
           this.editingTask = null;
@@ -137,8 +137,10 @@ export class TaskComponent implements OnInit {
   editTask(task: Task) {
     this.editingTask = task;
     this.showForm = true;
+    this.displayedTasks=[];
     this.taskFormGroup.patchValue({
-      name: task.name
+      name: task.name,
+      contenu:task.contenu
     });
   }
 
@@ -146,11 +148,13 @@ export class TaskComponent implements OnInit {
     this.editingTask = null;
     this.showForm = false;
     this.taskFormGroup.reset();
+    this.handleGetAllTasks();
   }
 
   handleNewTask() {
     this.editingTask = null;
     this.showForm = true;
+    this.displayedTasks = [];
   }
 
   getErrorMessage(fieldname: string, error: any) {
@@ -158,7 +162,9 @@ export class TaskComponent implements OnInit {
       return fieldname + ' is Required';
     } else if (error['minlength']) {
       return fieldname + ' should have at least ' + error['minlength']['requiredLength'] + ' Characters';
-    } else return '';
+    } else if (error['minlength']) {
+      return fieldname + ' should have at least ' + error['minlength']['requiredLength'] + ' Characters';}
+    else return '';
   }
 
   handlePageChange(event: PageEvent) {
@@ -166,4 +172,6 @@ export class TaskComponent implements OnInit {
     this.pageIndex = event.pageIndex;
     this.updateDisplayedTasks(); // Mettre à jour les tâches affichées lors du changement de page
   }
+
+
 }

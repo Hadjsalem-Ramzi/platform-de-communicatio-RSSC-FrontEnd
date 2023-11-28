@@ -1,0 +1,85 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 mb-0">
+      <nav class="p-2 border border-secondary rounded">
+        <button class="btn btn-primary d-flex align-items-center" (click)="handleNewFile()">
+          <span>New File</span>
+          <i class="bi bi-plus ml-auto"></i>
+        </button>
+      </nav>
+    </div>
+
+    <div class="col-md-6"> <!-- Pour prendre la seconde moitié de la page -->
+      <div class="input-group mt-2">
+        <input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2" [(ngModel)]="searchText" (input)="filterFiles()">
+        <button class="btn btn-outline-secondary" type="button" id="button-addon2">
+          <i class="bi bi-search"></i> <!-- Placeholder pour l'icône de recherche -->
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #errors>
+    <div class="text-danger">{{ errorMessage }}</div>
+  </ng-template>
+
+  <div class="card mt-3" *ngIf="displayedFiles.length>0; else errors">
+    <div class="card-header">List Files</div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>File Name</th>
+          <th>contenu</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let f of displayedFiles">
+          <td>{{ f.id }}</td>
+          <td>{{ f.name }}</td>
+          <td>{{f.contenu}}</td>
+          <td>
+            <button (click)="handleDeleteFile(f)" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+            <button (click)="editFile(f)" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Formulaire pour Ajouter et Mettre à jour une tâche -->
+  <div class="card mt-3" *ngIf="showForm" >
+    <div class="card-header">{{ editingFile ? 'Update File' : 'New File' }}</div>
+    <div class="card-body">
+      <form [formGroup]="fileFormGroup" (ngSubmit)="handleFileAction()">
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" formControlName="name" class="form-control">
+          <small *ngIf="fileFormGroup.controls['name'].errors && fileFormGroup.controls['name'].touched" class="text-danger">
+            {{ getErrorMessage('name', fileFormGroup.controls['name'].errors) }}
+          </small>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">contenu</label>
+          <input type="text" formControlName="contenu" class="form-control">
+          <small *ngIf="fileFormGroup.controls['contenu'].errors && fileFormGroup.controls['contenu'].touched" class="text-danger">
+            {{ getErrorMessage('contenu', fileFormGroup.controls['contenu'].errors) }}
+          </small>
+        </div>
+
+        <button [disabled]="fileFormGroup.invalid" class="btn btn-info" type="submit">{{ editingFile ? 'Update' : 'Save' }}</button>
+        <button *ngIf="editingFile" class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
+        <button *ngIf="!editingFile" class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
+      </form>
+    </div>
+  </div>
+  <mat-paginator
+    [length]="files.length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    (page)="handlePageChange($event)"
+  ></mat-paginator>
+</div>
